@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public float speed = 0;
 
     public TextMeshProUGUI scoreText;
+    public GameObject winTextObject;
 
     void Start()
     {
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
         score = 0;
 
         SetScoreText();
+        winTextObject.SetActive(false);
     }
 
     void OnMove(InputValue movementValue)
@@ -35,6 +37,10 @@ public class PlayerController : MonoBehaviour
     void SetScoreText()
     {
         scoreText.text = "Score: " + score.ToString();
+        if (score >= 12)
+        {
+            winTextObject.SetActive(true);
+        }
     }
 
     private void FixedUpdate()
