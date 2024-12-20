@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
 
     private int score = 0;
+    // Winning Score
+    public int winScore = 12;
 
     private float movementX;
     private float movementY;
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
 
     public TextMeshProUGUI scoreText;
     public GameObject winTextObject;
+    public GameObject newGameObject;
 
     void Start()
     {
@@ -24,6 +27,7 @@ public class PlayerController : MonoBehaviour
 
         SetScoreText();
         winTextObject.SetActive(false);
+        newGameObject.SetActive(false);
     }
 
     void OnMove(InputValue movementValue)
@@ -37,9 +41,14 @@ public class PlayerController : MonoBehaviour
     void SetScoreText()
     {
         scoreText.text = "Score: " + score.ToString();
-        if (score >= 12)
+
+        // Check for the win
+        if (score >= winScore)
         {
             winTextObject.SetActive(true);
+            newGameObject.SetActive(true);
+            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
+            SoundManager.Instance.PlayWinSound();
         }
     }
 
@@ -49,13 +58,25 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(movement * speed);
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+            winTextObject.gameObject.SetActive(true);
+            winTextObject.GetComponent<TextMeshProUGUI>().text = "You lose!";
+            newGameObject.SetActive(true);
+            SoundManager.Instance.PlayLoseSound();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("PickUp"))
         {
+            SoundManager.Instance.PlayCoinSound(); 
             other.gameObject.SetActive(false);
             score++;
-
             SetScoreText();
         }
     }
